@@ -74,4 +74,22 @@ router.get('/me', requireAuth, async (req, res) => {
   }
 });
 
+// PUT /api/auth/profile
+router.put('/profile', requireAuth, async (req, res) => {
+  try {
+    const { major, year, gpa } = req.body;
+    const updates = {};
+    if (major && ['CS', 'IS', 'IT'].includes(major)) updates.major = major;
+    if (year && [1,2,3,4].includes(Number(year))) updates.year = Number(year);
+    if (gpa !== undefined && gpa >= 0 && gpa <= 5) updates.gpa = Number(gpa);
+
+    const user = await User.findByIdAndUpdate(req.session.userId, updates, { new: true }).select('-password');
+    if (!user) return res.status(404).json({ error: 'User not found.' });
+    return res.json({ user: { id: user._id, username: user.username, email: user.email, major: user.major, year: user.year, gpa: user.gpa } });
+  } catch (err) {
+    console.error('Profile update error:', err.message);
+    return res.status(500).json({ error: 'Profile update failed.' });
+  }
+});
+
 module.exports = router;

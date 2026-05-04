@@ -31,7 +31,8 @@ export class Auth {
     // Listen for logout event
     document.addEventListener('auth:request_logout', () => this.logout());
 
-    this.checkSession();
+    // Don't auto-login, always show auth screen
+    this.showAuthScreen();
   }
 
   /**

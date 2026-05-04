@@ -1,43 +1,49 @@
-const express = require('express');
-const router = express.Router();
-const { GoogleGenerativeAI } = require('@google/generative-ai');
-const requireAuth = require('../middleware/auth');
-const User = require('../models/User');
-const ELECTIVES = require('../config/electives');
+/**
+ * IMSIU Curriculum Data
+ * Contains all courses, levels, and prerequisites for CS, IS, and IT majors.
+ */
 
-// Full curriculum data (server-side mirror of coursesData.js)
-const ALL_COURSES = [
-  // CS
+export const COURSES = [
+  // --- COMPUTER SCIENCE (CS) CORE ---
+  // Level 1
   { code: 'عال1111', arName: 'أساسيات الحوسبة والأخلاقيات', enName: 'Computing Fundamentals', level: 1, major: 'CS', prereqs: [] },
   { code: 'ريض1112', arName: 'حساب التفاضل والتكامل 1', enName: 'Calculus 1', level: 1, major: 'CS', prereqs: [] },
   { code: 'فيز1103', arName: 'الفيزياء العامة', enName: 'General Physics', level: 1, major: 'CS', prereqs: [] },
+  // Level 2
   { code: 'عال1140', arName: 'مقدمة في برمجة الحاسب', enName: 'Intro to Programming', level: 2, major: 'CS', prereqs: ['عال1111'] },
   { code: 'عال1100', arName: 'تراكيب محددة 1', enName: 'Discrete Structures 1', level: 2, major: 'CS', prereqs: ['عال1111'] },
   { code: 'ريض1113', arName: 'حساب التفاضل والتكامل 2', enName: 'Calculus 2', level: 2, major: 'CS', prereqs: ['ريض1112'] },
   { code: 'فيز1104', arName: 'الفيزياء التطبيقية', enName: 'Applied Physics', level: 2, major: 'CS', prereqs: ['فيز1103'] },
+  // Level 3
   { code: 'احص1011', arName: 'مقدمة في الاحتمالات والإحصاء', enName: 'Intro to Prob & Stat', level: 3, major: 'CS', prereqs: ['ريض1113'] },
   { code: 'عال1220', arName: 'تصميم المنطق الرقمي', enName: 'Digital Logic Design', level: 3, major: 'CS', prereqs: ['عال1100'] },
   { code: 'عال1241', arName: 'البرمجة الشيئية', enName: 'Object-Oriented Programming', level: 3, major: 'CS', prereqs: ['عال1140'] },
+  // Level 4
   { code: 'عال1242', arName: 'تراكيب البيانات', enName: 'Data Structures', level: 4, major: 'CS', prereqs: ['عال1241'] },
   { code: 'عال1201', arName: 'تراكيب محددة 2', enName: 'Discrete Structures 2', level: 4, major: 'CS', prereqs: ['عال1100', 'احص1011'] },
   { code: 'عال1223', arName: 'عمارة الحاسب', enName: 'Computer Architecture', level: 4, major: 'CS', prereqs: ['عال1220', 'فيز1104'] },
   { code: 'ريض1227', arName: 'الجبر الخطي', enName: 'Linear Algebra', level: 4, major: 'CS', prereqs: ['ريض1113'] },
+  // Level 5
   { code: 'عال1322', arName: 'أنظمة التشغيل', enName: 'Operating Systems', level: 5, major: 'CS', prereqs: ['عال1242', 'عال1223'] },
   { code: 'عال1350', arName: 'هندسة البرمجيات 1', enName: 'Software Engineering 1', level: 5, major: 'CS', prereqs: ['عال1242'] },
   { code: 'عال1370', arName: 'مبادئ قواعد البيانات', enName: 'Principles of Database', level: 5, major: 'CS', prereqs: ['عال1242'] },
   { code: 'عال1312', arName: 'تصميم وتحليل الخوارزميات', enName: 'Design & Analysis of Algorithms', level: 5, major: 'CS', prereqs: ['عال1242', 'عال1201'] },
   { code: 'عال1352', arName: 'التفاعل بين الإنسان والحاسب', enName: 'Human Computer Interaction', level: 5, major: 'CS', prereqs: ['عال1242'] },
+  // Level 6
   { code: 'عال1351', arName: 'هندسة البرمجيات 2', enName: 'Software Engineering 2', level: 6, major: 'CS', prereqs: ['عال1350'] },
   { code: 'عال1360', arName: 'الذكاء الاصطناعي', enName: 'Artificial Intelligence', level: 6, major: 'CS', prereqs: ['عال1201', 'احص1011', 'ريض1227'] },
   { code: 'عال1330', arName: 'شبكات الحاسب', enName: 'Computer Networks', level: 6, major: 'CS', prereqs: ['عال1322'] },
   { code: 'عال1313', arName: 'المترجمات', enName: 'Compilers', level: 6, major: 'CS', prereqs: ['عال1312'] },
   { code: 'عال1381', arName: 'ندوة التطوير المهني', enName: 'Professional Development', level: 6, major: 'CS', prereqs: ['عال1370', 'عال1322'] },
+  // Level 7
   { code: 'عال1495', arName: 'مشروع التخرج 1', enName: 'Graduation Project 1', level: 7, major: 'CS', prereqs: ['عال1381', 'عال1360', 'عال1330', 'عال1351'] },
   { code: 'عال1472', arName: 'أمن المعلومات', enName: 'Information Security', level: 7, major: 'CS', prereqs: ['عال1330', 'ريض1227'] },
   { code: 'عال1461', arName: 'تعلم الآلة', enName: 'Machine Learning', level: 7, major: 'CS', prereqs: ['عال1360'] },
+  // Level 8
   { code: 'عال1496', arName: 'مشروع التخرج 2', enName: 'Graduation Project 2', level: 8, major: 'CS', prereqs: ['عال1495'] },
   { code: 'عال1494', arName: 'التدريب التعاوني', enName: 'Practical Training', level: 8, major: 'CS', prereqs: ['عال1381', 'عال1472', 'عال1461'] },
-  // IS
+
+  // --- INFORMATION SYSTEMS (IS) CORE (Excludes shared with CS) ---
   { code: 'نال1130', arName: 'هندسة المتطلبات', enName: 'Requirements Engineering', level: 2, major: 'IS', prereqs: ['عال1111'] },
   { code: 'نال1235', arName: 'تحليل وتصميم النظم', enName: 'Systems Analysis & Design', level: 3, major: 'IS', prereqs: ['عال1241'] },
   { code: 'نال1200', arName: 'كفاءات الإدارة', enName: 'Management Competencies', level: 3, major: 'IS', prereqs: [] },
@@ -56,7 +62,8 @@ const ALL_COURSES = [
   { code: 'نال1460', arName: 'الأعمال الإلكترونية', enName: 'E-Business', level: 7, major: 'IS', prereqs: [] },
   { code: 'نال1489', arName: 'أمن المعلومات', enName: 'Information Security', level: 7, major: 'IS', prereqs: ['نال1330'] },
   { code: 'نال1483', arName: 'مشروع التخرج 2', enName: 'Graduation Project 2', level: 8, major: 'IS', prereqs: ['نال1480'] },
-  // IT
+
+  // --- INFORMATION TECHNOLOGY (IT) CORE (Excludes shared with CS) ---
   { code: 'تال1110', arName: 'الدعم التقني', enName: 'Technical Support', level: 1, major: 'IT', prereqs: [] },
   { code: 'تال1111', arName: 'أنظمة تقنية المعلومات', enName: 'IT Systems', level: 2, major: 'IT', prereqs: ['عال1111'] },
   { code: 'تال1201', arName: 'إدارة مشاريع تقنية المعلومات', enName: 'IT Project Management', level: 3, major: 'IT', prereqs: ['تال1111'] },
@@ -76,157 +83,20 @@ const ALL_COURSES = [
   { code: 'تال1493', arName: 'مشروع تخرج 2', enName: 'Graduation Project 2', level: 8, major: 'IT', prereqs: ['تال1492'] },
 ];
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-router.use(requireAuth);
-
-router.get('/electives', (req, res) => res.json(ELECTIVES));
-
-router.get('/history', async (req, res) => {
-  try {
-    const user = await User.findById(req.session.userId).select('history');
-    const sorted = user.history.sort((a, b) => new Date(b.date) - new Date(a.date));
-    return res.json({ history: sorted });
-  } catch (err) {
-    console.error('History fetch error:', err.message);
-    return res.status(500).json({ error: 'Failed to fetch history.' });
-  }
-});
-
-router.post('/manual', async (req, res) => {
-  try {
-    const { grades, language = 'ar' } = req.body;
-    if (!grades || !Array.isArray(grades) || grades.length === 0) {
-      return res.status(400).json({ error: 'grades array is required.' });
-    }
-    const user = await User.findById(req.session.userId);
-    const recommendations = await getRecommendations(user, grades, language);
-    user.history.push({ recommendations });
-    await user.save();
-    return res.json({ recommendations });
-  } catch (err) {
-    console.error('Manual recommend error:', err.message);
-    return res.status(500).json({ error: err.message || 'Recommendation failed.' });
-  }
-});
-
-async function getRecommendations(user, grades, language) {
-  const completedCodes = grades.map(g => g.course);
-  const gradesText = grades.map(g => `${g.course}: ${g.grade}`).join('\n');
-
-  // 1. Find NEXT CORE courses (prereqs met, not yet taken)
-  const majorCourses = ALL_COURSES.filter(c => {
-    if (c.major === user.major) return true;
-    if ((user.major === 'IS' || user.major === 'IT') && c.major === 'CS' && c.level <= 4) return true;
+/**
+ * Helper to get courses for a specific major and year.
+ * @param {string} major - The major code (CS, IS, IT)
+ * @param {number} year - The current year of the student (1, 2, 3, 4)
+ * @returns {Array} List of courses up to that year
+ */
+export function getCoursesForMajorAndYear(major, year) {
+  const maxLevel = year * 2;
+  return COURSES.filter(c => {
+    if (c.level > maxLevel) return false;
+    // Show the student's own major courses
+    if (c.major === major) return true;
+    // IS and IT students share CS core courses in early levels (1-4)
+    if ((major === 'IS' || major === 'IT') && c.major === 'CS' && c.level <= 4) return true;
     return false;
   });
-
-  const nextCoreCourses = majorCourses.filter(c => {
-    if (completedCodes.includes(c.code)) return false; // already taken
-    if (c.prereqs.length === 0) return !completedCodes.includes(c.code);
-    return c.prereqs.every(p => completedCodes.includes(p));
-  });
-
-  // 2. Find READY electives (prereqs met)
-  const majorElectives = ELECTIVES.filter(e => e.department === user.major);
-  const readyElectives = majorElectives.filter(e => {
-    if (completedCodes.includes(e.code)) return false;
-    if (!e.prereqs || e.prereqs.length === 0) return true;
-    return e.prereqs.every(p => completedCodes.includes(p));
-  });
-
-  // 3. Find FUTURE electives (prereqs NOT met)
-  const futureElectives = majorElectives.filter(e => {
-    if (completedCodes.includes(e.code)) return false;
-    if (!e.prereqs || e.prereqs.length === 0) return false;
-    return !e.prereqs.every(p => completedCodes.includes(p));
-  });
-
-  const nextCoreList = nextCoreCourses.length > 0
-    ? nextCoreCourses.map(c => `- ${c.code}: ${c.arName} (${c.enName}) [Level ${c.level}]`).join('\n')
-    : 'None';
-
-  const readyElectiveList = readyElectives.length > 0
-    ? readyElectives.map(e => `- ${e.code}: ${e.arName} (${e.enName}) — ${e.description}`).join('\n')
-    : 'None';
-
-  const futureElectiveList = futureElectives.length > 0
-    ? futureElectives.map(e => {
-        const missing = e.prereqs.filter(p => !completedCodes.includes(p));
-        return `- ${e.code}: ${e.arName} (${e.enName}) — NEEDS: [${missing.join(', ')}] — ${e.description}`;
-      }).join('\n')
-    : 'None';
-
-  const systemPrompt = `You are an academic advisor AI for Imam Mohammad Ibn Saud Islamic University (IMSIU).
-Your job is to recommend the NEXT BEST courses for a student based on what they have already completed.
-
-RESPOND ONLY WITH A VALID JSON ARRAY OF EXACTLY 5 OBJECTS. No markdown, no explanation.
-
-Each object:
-- "code": course code (string)
-- "name": Arabic name (string)
-- "enName": English name (string)
-- "match": match percentage 0-100 (number)
-- "reason": 2-3 sentence explanation IN ARABIC (string)
-- "enReason": 2-3 sentence explanation IN ENGLISH (string)
-- "department": department code (string)
-
-CRITICAL RULES:
-1. Recommend courses from "Next Core Courses" AND "Ready Electives" FIRST — these are courses the student CAN take right now.
-2. Mix both core and elective courses in your recommendations for variety.
-3. If there aren't enough ready courses, include some "Future Electives" and explain what prereqs are missing.
-4. NEVER recommend a course the student already completed.
-5. Prioritize courses that are the IMMEDIATE next step (lowest level first among ready courses).
-6. Consider GPA (${user.gpa}/5.0): higher GPA → recommend more challenging courses.
-7. Vary recommendations based on the student's strongest grades.`;
-
-  const userPrompt = `${systemPrompt}
-
-Student: ${user.major}, Year ${user.year}, GPA ${user.gpa}/5.0
-
-Completed:
-${gradesText}
-
-=== NEXT CORE COURSES (ready to take) ===
-${nextCoreList}
-
-=== READY ELECTIVES (prereqs completed) ===
-${readyElectiveList}
-
-=== FUTURE ELECTIVES (prereqs NOT completed) ===
-${futureElectiveList}
-
-Return exactly 5 recommendations as a JSON array.`;
-
-  const model = genAI.getGenerativeModel({ model: "gemini-flash-latest" });
-  const result = await model.generateContent(userPrompt);
-  const response = await result.response;
-  const content = response.text().trim();
-  const cleaned = content.replace(/```json|```/g, '').trim();
-
-  let parsed;
-  try { parsed = JSON.parse(cleaned); }
-  catch { throw new Error('AI returned an invalid response. Please try again.'); }
-
-  if (!Array.isArray(parsed) || parsed.length === 0) {
-    throw new Error('AI returned an unexpected format. Please try again.');
-  }
-
-  return parsed.slice(0, 5).map(rec => {
-    const elective = ELECTIVES.find(e => e.code === rec.code);
-    const core = ALL_COURSES.find(c => c.code === rec.code);
-    const source = elective || core || {};
-    return {
-      code: rec.code,
-      name: rec.name || source.arName,
-      enName: rec.enName || source.enName,
-      department: rec.department || source.department || source.major || user.major,
-      description: source.description || '',
-      enDescription: source.description || '',
-      match: rec.match,
-      reason: rec.reason,
-      enReason: rec.enReason
-    };
-  });
 }
-
-module.exports = router;

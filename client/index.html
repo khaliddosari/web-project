@@ -1,15 +1,17 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Nusuk — Elective Recommender</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800&family=Syne:wght@400;600;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="css/style.css" />
 </head>
-<body>
+<body dir="ar">
+
+  <button id="lang-toggle" class="lang-toggle">English</button>
 
   <!-- ─── AUTH SCREEN ─── -->
   <div id="auth-screen" class="auth-screen">
@@ -22,71 +24,70 @@
         <span class="brand-mark">ن</span>
         <span class="brand-name">Nusuk</span>
       </div>
-      <p class="auth-tagline">AI-powered elective recommender for IMSIU students</p>
+      <p class="auth-tagline" data-en="AI-powered elective recommender for IMSIU students" data-ar="نظام التوصية الذكي للمقررات الاختيارية لطلاب جامعة الإمام">نظام التوصية الذكي للمقررات الاختيارية لطلاب جامعة الإمام</p>
 
       <div class="auth-tabs">
-        <button class="auth-tab active" data-tab="login">Sign In</button>
-        <button class="auth-tab" data-tab="register">Register</button>
+        <button class="auth-tab active" data-tab="login" data-en="Sign In" data-ar="تسجيل الدخول">تسجيل الدخول</button>
+        <button class="auth-tab" data-tab="register" data-en="Register" data-ar="حساب جديد">حساب جديد</button>
       </div>
 
       <!-- LOGIN -->
       <form id="login-form" class="auth-form active" novalidate>
         <div class="field-group">
-          <label for="login-email">Email</label>
+          <label for="login-email" data-en="Email" data-ar="البريد الجامعي">البريد الجامعي</label>
           <input type="email" id="login-email" placeholder="you@imsiu.edu.sa" autocomplete="email" />
         </div>
         <div class="field-group">
-          <label for="login-password">Password</label>
+          <label for="login-password" data-en="Password" data-ar="كلمة المرور">كلمة المرور</label>
           <input type="password" id="login-password" placeholder="••••••••" autocomplete="current-password" />
         </div>
         <div id="login-error" class="form-error hidden"></div>
-        <button type="submit" class="btn-primary">Sign In</button>
+        <button type="submit" class="btn-primary" data-en="Sign In" data-ar="دخول">دخول</button>
       </form>
 
       <!-- REGISTER -->
       <form id="register-form" class="auth-form" novalidate>
         <div class="field-row">
           <div class="field-group">
-            <label for="reg-username">Username</label>
+            <label for="reg-username" data-en="Username" data-ar="اسم المستخدم">اسم المستخدم</label>
             <input type="text" id="reg-username" placeholder="student123" />
           </div>
           <div class="field-group">
-            <label for="reg-email">Email</label>
+            <label for="reg-email" data-en="Email" data-ar="البريد الجامعي">البريد الجامعي</label>
             <input type="email" id="reg-email" placeholder="you@imsiu.edu.sa" />
           </div>
         </div>
         <div class="field-group">
-          <label for="reg-password">Password</label>
+          <label for="reg-password" data-en="Password" data-ar="كلمة المرور">كلمة المرور</label>
           <input type="password" id="reg-password" placeholder="Min. 6 characters" />
         </div>
         <div class="field-row">
           <div class="field-group">
-            <label for="reg-major">Major</label>
+            <label for="reg-major" data-en="Major" data-ar="التخصص">التخصص</label>
             <select id="reg-major">
-              <option value="">Select major</option>
-              <option value="CS">Computer Science</option>
-              <option value="IS">Information Systems</option>
-              <option value="MATH">Mathematics</option>
-              <option value="ENG">Engineering</option>
+              <option value="" data-en="Select major" data-ar="اختر التخصص">اختر التخصص</option>
+              <option value="CS" data-en="Computer Science" data-ar="علوم الحاسب">علوم الحاسب</option>
+              <option value="IS" data-en="Information Systems" data-ar="نظم المعلومات">نظم المعلومات</option>
+              <option value="IT" data-en="Information Technology" data-ar="تقنية المعلومات">تقنية المعلومات</option>
             </select>
           </div>
           <div class="field-group">
-            <label for="reg-year">Year</label>
+            <label for="reg-year" data-en="Year" data-ar="السنة الدراسية">السنة الدراسية</label>
             <select id="reg-year">
-              <option value="">Select year</option>
-              <option value="1">Year 1</option>
-              <option value="2">Year 2</option>
-              <option value="3">Year 3</option>
-              <option value="4">Year 4</option>
+              <option value="" data-en="Select year" data-ar="اختر السنة">اختر السنة</option>
+              <option value="1" data-en="Year 1" data-ar="السنة الأولى">السنة الأولى</option>
+              <option value="2" data-en="Year 2" data-ar="السنة الثانية">السنة الثانية</option>
+              <option value="3" data-en="Year 3" data-ar="السنة الثالثة">السنة الثالثة</option>
+              <option value="4" data-en="Year 4" data-ar="السنة الرابعة">السنة الرابعة</option>
             </select>
           </div>
         </div>
         <div class="field-group">
-          <label for="reg-gpa">GPA</label>
-          <input type="number" id="reg-gpa" placeholder="4.00" min="0" max="5" step="0.01" />
+          <label for="reg-gpa" data-en="GPA (Out of 5.00)" data-ar="المعدل التراكمي (من 5.00)">المعدل التراكمي (من 5.00)</label>
+          <input type="number" id="reg-gpa" placeholder="5.00" min="0" max="5" step="0.01" />
         </div>
         <div id="register-error" class="form-error hidden"></div>
-        <button type="submit" class="btn-primary">Create Account</button>
+        <button type="submit" class="btn-primary" data-en="Create Account" data-ar="إنشاء حساب">إنشاء حساب</button>
       </form>
     </div>
   </div>
@@ -103,14 +104,18 @@
       <nav class="sidebar-nav">
         <button class="nav-item active" data-page="recommend">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
-          <span>Recommend</span>
+          <span data-en="Recommend" data-ar="التوصيات">التوصيات</span>
         </button>
         <button class="nav-item" data-page="history">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-          <span>History</span>
+          <span data-en="History" data-ar="السجل">السجل</span>
+        </button>
+        <button class="nav-item" data-page="curriculum">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+          <span data-en="Curriculum" data-ar="الخطة الدراسية">الخطة الدراسية</span>
         </button>
       </nav>
-      <div class="sidebar-user">
+      <div class="sidebar-user" id="sidebar-user" style="cursor:pointer;" title="Edit Profile">
         <div class="user-avatar" id="user-avatar">S</div>
         <div class="user-info">
           <span id="user-name">Student</span>
@@ -129,48 +134,37 @@
       <section id="page-recommend" class="page active">
         <div class="page-header">
           <div>
-            <h1>Elective Recommender</h1>
-            <p class="page-subtitle">Enter your grades and get 5 AI-powered elective suggestions</p>
+            <h1 data-en="Elective Recommender" data-ar="نظام التوصية">نظام التوصية</h1>
+            <p class="page-subtitle" data-en="Select your grades and get AI-powered elective suggestions" data-ar="قم باختيار درجاتك للحصول على توصيات مدعومة بالذكاء الاصطناعي">قم باختيار درجاتك للحصول على توصيات مدعومة بالذكاء الاصطناعي</p>
           </div>
         </div>
 
         <div class="recommend-layout">
-
-          <!-- INPUT PANEL -->
           <div class="input-panel">
-
-            <!-- MANUAL ENTRY -->
             <div id="manual-panel" class="input-mode-panel active">
-              <div class="manual-grades" id="manual-grades">
-                <!-- Grade rows added dynamically -->
-              </div>
+              <div class="manual-grades" id="manual-grades"></div>
               <button class="btn-add-row" id="add-grade-row">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                Add Course
+                <span data-en="Add Course" data-ar="إضافة مقرر">إضافة مقرر</span>
               </button>
               <div id="manual-error" class="form-error hidden"></div>
-              <button class="btn-primary" id="manual-submit">Get Recommendations</button>
+              <button class="btn-primary" id="manual-submit" data-en="Get Recommendations" data-ar="الحصول على التوصيات">الحصول على التوصيات</button>
             </div>
-
           </div>
 
-          <!-- RESULTS PANEL -->
           <div class="results-panel" id="results-panel">
             <div class="results-placeholder" id="results-placeholder">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
-              <p>Your 5 recommended electives will appear here</p>
+              <p data-en="Your recommended electives will appear here" data-ar="ستظهر المقررات الموصى بها هنا">ستظهر المقررات الموصى بها هنا</p>
             </div>
             <div class="results-loading hidden" id="results-loading">
               <div class="ai-loading">
                 <div class="ai-pulse"></div>
-                <span>AI is analyzing your grades…</span>
+                <span data-en="AI is analyzing your profile..." data-ar="الذكاء الاصطناعي يحلل درجاتك...">الذكاء الاصطناعي يحلل درجاتك...</span>
               </div>
             </div>
-            <div class="results-grid hidden" id="results-grid">
-              <!-- Recommendation cards injected here -->
-            </div>
+            <div class="results-grid hidden" id="results-grid"></div>
           </div>
-
         </div>
       </section>
 
@@ -178,19 +172,66 @@
       <section id="page-history" class="page">
         <div class="page-header">
           <div>
-            <h1>Recommendation History</h1>
-            <p class="page-subtitle">Your past AI recommendations</p>
+            <h1 data-en="Recommendation History" data-ar="سجل التوصيات">سجل التوصيات</h1>
+            <p class="page-subtitle" data-en="Your past AI recommendations" data-ar="سجل توصيات الذكاء الاصطناعي السابقة">سجل توصيات الذكاء الاصطناعي السابقة</p>
           </div>
         </div>
         <div id="history-list" class="history-list">
           <div class="empty-state">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-            <p>No history yet. Get your first recommendation above.</p>
+            <p data-en="No history yet." data-ar="لا يوجد سجل حتى الآن.">لا يوجد سجل حتى الآن.</p>
           </div>
         </div>
       </section>
 
+      <!-- CURRICULUM MAP PAGE -->
+      <section id="page-curriculum" class="page">
+        <div class="page-header">
+          <div>
+            <h1 data-en="Curriculum Map" data-ar="الخطة الدراسية">الخطة الدراسية</h1>
+            <p class="page-subtitle" data-en="Complete course roadmap with prerequisites for your major" data-ar="خريطة المقررات الكاملة مع المتطلبات السابقة لتخصصك">خريطة المقررات الكاملة مع المتطلبات السابقة لتخصصك</p>
+          </div>
+        </div>
+        <div id="curriculum-map" class="curriculum-map"></div>
+      </section>
+
     </main>
+  </div>
+
+  <!-- PROFILE MODAL -->
+  <div id="profile-modal" class="modal-overlay hidden">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2 data-en="Edit Profile" data-ar="تعديل الملف الشخصي">تعديل الملف الشخصي</h2>
+        <button class="modal-close" id="profile-modal-close">✕</button>
+      </div>
+      <form id="profile-form" class="modal-body">
+        <div class="field-group">
+          <label data-en="Major" data-ar="التخصص">التخصص</label>
+          <select id="profile-major">
+            <option value="CS" data-en="Computer Science" data-ar="علوم الحاسب">علوم الحاسب</option>
+            <option value="IS" data-en="Information Systems" data-ar="نظم المعلومات">نظم المعلومات</option>
+            <option value="IT" data-en="Information Technology" data-ar="تقنية المعلومات">تقنية المعلومات</option>
+          </select>
+        </div>
+        <div class="field-group">
+          <label data-en="Year" data-ar="السنة الدراسية">السنة الدراسية</label>
+          <select id="profile-year">
+            <option value="1" data-en="Year 1" data-ar="السنة الأولى">السنة الأولى</option>
+            <option value="2" data-en="Year 2" data-ar="السنة الثانية">السنة الثانية</option>
+            <option value="3" data-en="Year 3" data-ar="السنة الثالثة">السنة الثالثة</option>
+            <option value="4" data-en="Year 4" data-ar="السنة الرابعة">السنة الرابعة</option>
+          </select>
+        </div>
+        <div class="field-group">
+          <label data-en="GPA (Out of 5.00)" data-ar="المعدل التراكمي (من 5.00)">المعدل التراكمي (من 5.00)</label>
+          <input type="number" id="profile-gpa" min="0" max="5" step="0.01" />
+        </div>
+        <p class="gpa-hint" data-en="GPA helps the AI gauge your academic level to recommend harder or easier electives." data-ar="المعدل يساعد الذكاء الاصطناعي في تقييم مستواك الأكاديمي لترشيح مقررات مناسبة لمستواك.">المعدل يساعد الذكاء الاصطناعي في تقييم مستواك الأكاديمي لترشيح مقررات مناسبة لمستواك.</p>
+        <div id="profile-error" class="form-error hidden"></div>
+        <button type="submit" class="btn-primary" data-en="Save Changes" data-ar="حفظ التعديلات">حفظ التعديلات</button>
+      </form>
+    </div>
   </div>
 
   <!-- TOAST -->

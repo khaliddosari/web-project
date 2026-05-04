@@ -24,6 +24,14 @@ export class ApiService {
     return data;
   }
 
+  get(url) {
+    return this.request('GET', url);
+  }
+
+  post(url, body) {
+    return this.request('POST', url, body);
+  }
+
   /**
    * Register a new user
    * @param {Object} fields - User registration data
