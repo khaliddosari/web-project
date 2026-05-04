@@ -8,7 +8,7 @@ const userSchema = new mongoose.Schema(
     password: { type: String, required: true, minlength: 6 },
     major:    { type: String, enum: ['CS', 'IS', 'MATH', 'ENG'], required: true },
     year:     { type: Number, min: 1, max: 4, required: true },
-    gpaRange: { type: String, required: true },
+    gpa:      { type: Number, min: 0, max: 5, required: true },
   },
   { timestamps: true }
 );

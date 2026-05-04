@@ -6,9 +6,9 @@ const requireAuth = require('../middleware/auth');
 // POST /api/auth/register
 router.post('/register', async (req, res) => {
   try {
-    const { username, email, password, major, year, gpaRange } = req.body;
+    const { username, email, password, major, year, gpa } = req.body;
 
-    if (!username || !email || !password || !major || !year || !gpaRange) {
+    if (!username || !email || !password || !major || !year || !gpa) {
       return res.status(400).json({ error: 'All fields are required.' });
     }
 
@@ -17,11 +17,11 @@ router.post('/register', async (req, res) => {
       return res.status(409).json({ error: 'Username or email already taken.' });
     }
 
-    const user = await User.create({ username, email, password, major, year, gpaRange });
+    const user = await User.create({ username, email, password, major, year, gpa });
     req.session.userId = user._id;
 
     return res.status(201).json({
-      user: { id: user._id, username: user.username, email: user.email, major: user.major, year: user.year, gpaRange: user.gpaRange },
+      user: { id: user._id, username: user.username, email: user.email, major: user.major, year: user.year, gpa: user.gpa },
     });
   } catch (err) {
     console.error('Register error:', err.message);
@@ -46,7 +46,7 @@ router.post('/login', async (req, res) => {
     req.session.userId = user._id;
 
     return res.json({
-      user: { id: user._id, username: user.username, email: user.email, major: user.major, year: user.year, gpaRange: user.gpaRange },
+      user: { id: user._id, username: user.username, email: user.email, major: user.major, year: user.year, gpa: user.gpa },
     });
   } catch (err) {
     console.error('Login error:', err.message);
