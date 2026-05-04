@@ -1,4 +1,15 @@
-const API = {
+/**
+ * ApiService Class
+ * Handles all HTTP requests to the backend API.
+ */
+export class ApiService {
+  /**
+   * Core request method
+   * @param {string} method - HTTP method (GET, POST, etc.)
+   * @param {string} url - API endpoint
+   * @param {Object} [body] - Optional request body
+   * @returns {Promise<Object>} JSON response
+   */
   async request(method, url, body) {
     const opts = {
       method,
@@ -11,24 +22,49 @@ const API = {
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || 'Request failed');
     return data;
-  },
+  }
 
-  // Auth
-  register(fields) { return this.request('POST', '/api/auth/register', fields); },
-  login(email, password) { return this.request('POST', '/api/auth/login', { email, password }); },
-  logout() { return this.request('POST', '/api/auth/logout'); },
-  me() { return this.request('GET', '/api/auth/me'); },
+  /**
+   * Register a new user
+   * @param {Object} fields - User registration data
+   * @returns {Promise<Object>} Response data
+   */
+  register(fields) { 
+    return this.request('POST', '/api/auth/register', fields); 
+  }
 
-  // Recommend
-  getElectives() { return this.request('GET', '/api/recommend/electives'); },
-  recommendManual(grades) { return this.request('POST', '/api/recommend/manual', { grades }); },
+  /**
+   * Login a user
+   * @param {string} email - User email
+   * @param {string} password - User password
+   * @returns {Promise<Object>} Response data
+   */
+  login(email, password) { 
+    return this.request('POST', '/api/auth/login', { email, password }); 
+  }
 
-  async recommendUpload(file) {
-    const form = new FormData();
-    form.append('transcript', file);
-    const res = await fetch('/api/recommend/upload', { method: 'POST', body: form, credentials: 'same-origin' });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error || 'Upload failed');
-    return data;
-  },
-};
+  /**
+   * Logout the current user
+   * @returns {Promise<Object>} Response data
+   */
+  logout() { 
+    return this.request('POST', '/api/auth/logout'); 
+  }
+
+  /**
+   * Get current user session
+   * @returns {Promise<Object>} Response data
+   */
+  me() { 
+    return this.request('GET', '/api/auth/me'); 
+  }
+
+  /**
+   * Get manual recommendations based on grades
+   * @param {Array} grades - Array of course/grade objects
+   * @returns {Promise<Object>} Response data containing recommendations
+   */
+  recommendManual(grades) { 
+    return this.request('POST', '/api/recommend/manual', { grades }); 
+  }
+}

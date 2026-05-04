@@ -1,47 +1,38 @@
-const Recommend = (() => {
-  let gradeRowCount = 0;
-
-  function init() {
-    // Mode toggle
-    document.querySelectorAll('.mode-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        document.querySelectorAll('.mode-btn').forEach(b => b.classList.toggle('active', b === btn));
-        document.getElementById('manual-panel').classList.toggle('active', btn.dataset.mode === 'manual');
-        document.getElementById('upload-panel').classList.toggle('active', btn.dataset.mode === 'upload');
-      });
-    });
-
-    // Manual grades
-    addGradeRow();
-    addGradeRow();
-    addGradeRow();
-    document.getElementById('add-grade-row').addEventListener('click', addGradeRow);
-    document.getElementById('manual-submit').addEventListener('click', submitManual);
-
-    // Upload
-    const fileInput = document.getElementById('file-input');
-    document.getElementById('browse-btn').addEventListener('click', () => fileInput.click());
-    fileInput.addEventListener('change', handleFileSelect);
-
-    const zone = document.getElementById('upload-zone');
-    zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over'); });
-    zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
-    zone.addEventListener('drop', e => {
-      e.preventDefault();
-      zone.classList.remove('drag-over');
-      if (e.dataTransfer.files.length) {
-        fileInput.files = e.dataTransfer.files;
-        handleFileSelect();
-      }
-    });
-
-    document.getElementById('remove-file').addEventListener('click', clearFile);
-    document.getElementById('upload-submit').addEventListener('click', submitUpload);
+/**
+ * Recommend Class
+ * Handles manual grade inputs and UI updates for recommendations.
+ */
+export class Recommend {
+  /**
+   * Initialize Recommend class
+   * @param {ApiService} api - Reference to ApiService instance
+   */
+  constructor(api) {
+    this.api = api;
+    this.gradeRowCount = 0;
+    this.container = document.getElementById('manual-grades');
+    this.errorEl = document.getElementById('manual-error');
+    
+    this.init();
   }
 
-  function addGradeRow() {
-    gradeRowCount++;
-    const container = document.getElementById('manual-grades');
+  /**
+   * Attach event listeners and setup initial state
+   */
+  init() {
+    this.addGradeRow();
+    this.addGradeRow();
+    this.addGradeRow();
+    
+    document.getElementById('add-grade-row').addEventListener('click', () => this.addGradeRow());
+    document.getElementById('manual-submit').addEventListener('click', () => this.submitManual());
+  }
+
+  /**
+   * Add a new empty grade input row to the UI
+   */
+  addGradeRow() {
+    this.gradeRowCount++;
     const row = document.createElement('div');
     row.className = 'grade-row';
     row.innerHTML = `
@@ -58,12 +49,16 @@ const Recommend = (() => {
     `;
     row.querySelector('.btn-remove-row').addEventListener('click', () => {
       row.remove();
-      gradeRowCount--;
+      this.gradeRowCount--;
     });
-    container.appendChild(row);
+    this.container.appendChild(row);
   }
 
-  function collectGrades() {
+  /**
+   * Parse the input fields and collect valid course grades
+   * @returns {Array} List of grade objects
+   */
+  collectGrades() {
     const rows = document.querySelectorAll('.grade-row');
     const grades = [];
     rows.forEach(row => {
@@ -74,81 +69,65 @@ const Recommend = (() => {
     return grades;
   }
 
-  async function submitManual() {
-    const errorEl = document.getElementById('manual-error');
-    errorEl.classList.add('hidden');
-    const grades = collectGrades();
+  /**
+   * Handle recommendation submission
+   */
+  async submitManual() {
+    this.errorEl.classList.add('hidden');
+    const grades = this.collectGrades();
+    
     if (grades.length === 0) {
-      errorEl.textContent = 'Enter at least one course and grade.';
-      errorEl.classList.remove('hidden');
+      this.errorEl.textContent = 'Enter at least one course and grade.';
+      this.errorEl.classList.remove('hidden');
       return;
     }
-    showLoading();
+    
+    this.showLoading();
+    
     try {
-      const { recommendations } = await API.recommendManual(grades);
-      renderResults(recommendations);
+      const { recommendations } = await this.api.recommendManual(grades);
+      this.renderResults(recommendations);
     } catch (err) {
-      errorEl.textContent = err.message;
-      errorEl.classList.remove('hidden');
-      hideLoading();
+      this.errorEl.textContent = err.message;
+      this.errorEl.classList.remove('hidden');
+      this.hideLoading();
     }
   }
 
-  function handleFileSelect() {
-    const file = document.getElementById('file-input').files[0];
-    if (!file) return;
-    document.getElementById('file-name').textContent = file.name;
-    document.getElementById('upload-zone').classList.add('hidden');
-    document.getElementById('file-preview').classList.remove('hidden');
-  }
-
-  function clearFile() {
-    document.getElementById('file-input').value = '';
-    document.getElementById('upload-zone').classList.remove('hidden');
-    document.getElementById('file-preview').classList.add('hidden');
-  }
-
-  async function submitUpload() {
-    const errorEl = document.getElementById('upload-error');
-    errorEl.classList.add('hidden');
-    const file = document.getElementById('file-input').files[0];
-    if (!file) {
-      errorEl.textContent = 'Please select a file first.';
-      errorEl.classList.remove('hidden');
-      return;
-    }
-    showLoading();
-    try {
-      const { recommendations } = await API.recommendUpload(file);
-      renderResults(recommendations);
-    } catch (err) {
-      errorEl.textContent = err.message;
-      errorEl.classList.remove('hidden');
-      hideLoading();
-    }
-  }
-
-  function showLoading() {
+  /**
+   * Display loading spinner in UI
+   */
+  showLoading() {
     document.getElementById('results-placeholder').classList.add('hidden');
     document.getElementById('results-grid').classList.add('hidden');
     document.getElementById('results-loading').classList.remove('hidden');
   }
 
-  function hideLoading() {
+  /**
+   * Hide loading spinner in UI
+   */
+  hideLoading() {
     document.getElementById('results-loading').classList.add('hidden');
     document.getElementById('results-placeholder').classList.remove('hidden');
   }
 
-  function renderResults(recs) {
+  /**
+   * Render AI recommendations as cards
+   * @param {Array} recs - Array of recommendation objects
+   */
+  renderResults(recs) {
     document.getElementById('results-loading').classList.add('hidden');
     const grid = document.getElementById('results-grid');
     grid.innerHTML = '';
+    
     recs.forEach((rec, i) => {
       const card = document.createElement('div');
       card.className = 'rec-card';
       card.style.animationDelay = `${i * 0.08}s`;
+      
       const circumference = 2 * Math.PI * 36;
       const offset = circumference - (rec.match / 100) * circumference;
+      
       card.innerHTML = `
         <div class="rec-card-header">
           <div class="match-ring">
@@ -169,8 +148,7 @@ const Recommend = (() => {
       `;
       grid.appendChild(card);
     });
+    
     grid.classList.remove('hidden');
   }
-
-  return { init };
-})();
+}
