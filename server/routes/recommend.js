@@ -1,29 +1,12 @@
 const express = require('express');
 const router = express.Router();
-const multer = require('multer');
-const path = require('path');
-const fs = require('fs');
-const pdfParse = require('pdf-parse');
-const OpenAI = require('openai');
+const { GoogleGenerativeAI } = require('@google/generative-ai');
 const requireAuth = require('../middleware/auth');
 const User = require('../models/User');
 const ELECTIVES = require('../config/electives');
 
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-
-// ─── Multer Setup ─────────────────────────────
-const upload = multer({
-  dest: path.join(__dirname, '../uploads/'),
-  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
-  fileFilter: (req, file, cb) => {
-    const allowed = ['application/pdf', 'text/csv', 'text/plain'];
-    if (allowed.includes(file.mimetype) || file.originalname.endsWith('.csv')) {
-      cb(null, true);
-    } else {
-      cb(new Error('Only PDF and CSV files are allowed.'));
-    }
-  },
-});
+// Initialize Gemini API
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 router.use(requireAuth);
 
@@ -57,47 +40,13 @@ router.post('/manual', async (req, res) => {
   }
 });
 
-// ─── Transcript Upload ────────────────────────
-// POST /api/recommend/upload
-router.post('/upload', upload.single('transcript'), async (req, res) => {
-  try {
-    if (!req.file) {
-      return res.status(400).json({ error: 'No file uploaded.' });
-    }
-
-    const user = await User.findById(req.session.userId);
-    let gradesText = '';
-
-    // Parse file content
-    if (req.file.mimetype === 'application/pdf') {
-      const dataBuffer = fs.readFileSync(req.file.path);
-      const pdfData = await pdfParse(dataBuffer);
-      gradesText = pdfData.text;
-    } else {
-      // CSV or plain text
-      gradesText = fs.readFileSync(req.file.path, 'utf8');
-    }
-
-    // Clean up uploaded file
-    fs.unlinkSync(req.file.path);
-
-    if (!gradesText.trim()) {
-      return res.status(400).json({ error: 'Could not extract text from the uploaded file.' });
-    }
-
-    const recommendations = await getRecommendations(user, gradesText);
-    return res.json({ recommendations });
-  } catch (err) {
-    // Clean up file on error
-    if (req.file?.path && fs.existsSync(req.file.path)) {
-      fs.unlinkSync(req.file.path);
-    }
-    console.error('Upload recommend error:', err.message);
-    return res.status(500).json({ error: err.message || 'Recommendation failed.' });
-  }
-});
-
-// ─── Core OpenAI Logic ────────────────────────
+// ─── Core Gemini API Logic ────────────────────────
+/**
+ * Contacts the Google Gemini API to get recommendations
+ * @param {Object} user - The user document
+ * @param {String} gradesText - Formatted string of user's past grades
+ * @returns {Array} List of 5 recommendations
+ */
 async function getRecommendations(user, gradesText) {
   const electivesList = ELECTIVES.map(e =>
     `- ${e.code}: ${e.name} (${e.department}) — ${e.description}`
@@ -116,14 +65,14 @@ Each object must have:
 
 Base your recommendations on:
 1. The student's grades — strong grades in relevant subjects indicate readiness
-2. The student's major (${user.major}), year (${user.year}), and GPA range (${user.gpaRange})
+2. The student's major (${user.major}), year (${user.year}), and GPA (${user.gpa})
 3. Logical course progression and complementary skills
 4. Only recommend courses from the provided list`;
 
-  const userPrompt = `Student Profile:
+  const userPrompt = `${systemPrompt}\n\nStudent Profile:
 - Major: ${user.major}
 - Year: ${user.year}
-- GPA Range: ${user.gpaRange}
+- GPA: ${user.gpa}
 
 Past Grades:
 ${gradesText}
@@ -133,17 +82,11 @@ ${electivesList}
 
 Return exactly 5 recommendations as a JSON array.`;
 
-  const response = await openai.chat.completions.create({
-    model: 'gpt-4o-mini',
-    messages: [
-      { role: 'system', content: systemPrompt },
-      { role: 'user', content: userPrompt },
-    ],
-    temperature: 0.4,
-    max_tokens: 1500,
-  });
+  const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
-  const content = response.choices[0].message.content.trim();
+  const result = await model.generateContent(userPrompt);
+  const response = await result.response;
+  const content = response.text().trim();
 
   // Strip markdown code fences if present
   const cleaned = content.replace(/```json|```/g, '').trim();
