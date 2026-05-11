@@ -1,4 +1,4 @@
-# Nusuk (نسق) — AI Elective Recommender
+# Nusuk (نسق): AI Elective Recommender
 
 ## Overview
 Nusuk is an intelligent academic web application designed for **Imam Mohammad Ibn Saud Islamic University (IMSIU)** students. It helps students make informed decisions about their elective courses by analyzing their completed coursework, grades, and academic profile using **Google Gemini AI**.
@@ -7,38 +7,38 @@ The system supports three majors: **Computer Science (CS)**, **Information Syste
 
 ## Key Features
 
-### 🤖 AI-Powered Recommendations
+### AI-Powered Recommendations
 - Analyzes student's completed courses, grades, major, year, and GPA.
 - Recommends the **next-step courses** (core + elective) based on prerequisite completion.
 - Splits recommendations into **"Ready Now"** (all prerequisites met) and **"Future"** (prerequisites missing) categories.
-- Uses the GPA to gauge academic level — higher GPA students get harder elective suggestions.
+- Uses the GPA to gauge academic level, so higher GPA students get harder elective suggestions.
 
-### 📚 Full Curriculum Data
+### Full Curriculum Data
 - Contains all core courses for CS, IS, and IT with accurate prerequisite chains.
 - Includes **12 CS electives**, **5 IS electives**, and **4 IT electives** with full prerequisite mapping.
-- Course dropdowns show **all courses for the student's major**, with real-time prerequisite validation — selecting a course without completing its prerequisites triggers a warning.
+- Course dropdowns show **all courses for the student's major**, with real-time prerequisite validation: selecting a course without completing its prerequisites triggers a warning.
 
-### 🗺️ Interactive Curriculum Map
-- Visual roadmap of **all courses organized by level** (Level 1–8) with prerequisite tags.
+### Interactive Curriculum Map
+- Visual roadmap of **all courses organized by level** (Level 1 to 8) with prerequisite tags.
 - Dedicated **elective courses section** with distinct styling.
 - **Clickable cards**: click any course to mark it as completed (green ✓). State is saved in `localStorage`.
 
-### 🌐 Full Bilingual Support (Arabic / English)
+### Full Bilingual Support (Arabic / English)
 - Toggle between Arabic (RTL) and English (LTR) with a single click.
 - All UI elements, course names, recommendation results, and history update **instantly** without page reload.
 - Course codes translate dynamically (e.g., `عال1242` → `CS1242`).
 
-### 👤 User Profile Management
+### User Profile Management
 - Register with username, email, password, major, year, and GPA.
-- **Edit profile** anytime by clicking your avatar in the sidebar — change major, year, or GPA.
+- **Edit profile** anytime by clicking your avatar in the sidebar to change major, year, or GPA.
 - Profile updates automatically re-populate the course list.
 
-### 📜 Recommendation History
+### Recommendation History
 - All AI recommendations are saved to MongoDB and displayed in the **History** tab.
 - History entries show the date, course names, match percentages, and AI reasoning.
 - History dynamically switches language when toggling Arabic/English.
 
-### 🔒 Authentication
+### Authentication
 - Secure registration and login with bcrypt password hashing.
 - Session-based authentication using `express-session` with MongoDB store.
 - Protected API routes via `requireAuth` middleware.
@@ -47,7 +47,7 @@ The system supports three majors: **Computer Science (CS)**, **Information Syste
 
 | Layer | Technologies |
 | :--- | :--- |
-| **Frontend** | HTML5, CSS3 (custom design system), Vanilla JavaScript (ES6 Classes, ES Modules, `CustomEvent` architecture) |
+| **Frontend** | HTML5, CSS3 (custom design system), Vanilla JavaScript (ES6 Classes, `CustomEvent` architecture) |
 | **Backend** | Node.js, Express.js, express-session, connect-mongo |
 | **Database** | MongoDB Atlas (Mongoose ODM) |
 | **AI** | Google Gemini API (`gemini-flash-latest` model via `@google/generative-ai` SDK) |
@@ -56,22 +56,23 @@ The system supports three majors: **Computer Science (CS)**, **Information Syste
 ## Project Structure
 
 ```
-CS1445-Project/
+nusuk/
 ├── README.md
 ├── client/
 │   ├── index.html              # Main SPA with auth, recommend, history, curriculum pages
 │   ├── css/
 │   │   └── style.css           # Complete design system (dark theme, glassmorphism, animations)
 │   └── js/
-│       ├── app.js              # Main App class — routing, language, history, curriculum map, profile modal
-│       ├── api.js              # ApiService class — HTTP request wrapper (GET, POST, PUT)
-│       ├── auth.js             # Auth class — login, register, session management
-│       ├── recommend.js        # Recommend class — grade inputs, prereq validation, AI results rendering
+│       ├── app.js              # Main App class: routing, language, history, curriculum map, profile modal
+│       ├── api.js              # ApiService class: HTTP request wrapper (GET, POST, PUT)
+│       ├── auth.js             # Auth class: login, register, session management
+│       ├── recommend.js        # Recommend class: grade inputs, prereq validation, AI results rendering
 │       └── coursesData.js      # IMSIU curriculum data (all courses, levels, prereqs for CS/IS/IT)
 └── server/
     ├── index.js                # Express server entry point (static files, session, routes)
     ├── package.json            # Dependencies
-    ├── .env                    # Environment variables (PORT, MONGO_URI, SESSION_SECRET, GEMINI_API_KEY)
+    ├── .env                    # Local environment variables (gitignored, see .env.example)
+    ├── .env.example            # Template for required environment variables
     ├── config/
     │   └── electives.js        # Elective courses catalog with prereqs (CS: 12, IS: 5, IT: 4)
     ├── middleware/
@@ -87,32 +88,52 @@ CS1445-Project/
 
 ### 1. Prerequisites
 - **Node.js** v18 or higher
-- **MongoDB** (local instance or MongoDB Atlas cloud)
+- **MongoDB Atlas** account (free M0 tier is sufficient) or a local MongoDB instance
 - **Google Gemini API Key** ([Get one here](https://aistudio.google.com/app/apikey))
 
 ### 2. Installation
 ```bash
 git clone <repository-url>
-cd CS1445-Project/server
+cd web-project/server
 npm install
 ```
 
 ### 3. Environment Variables
-Create a `.env` file inside the `server/` directory:
+Copy `.env.example` to `.env` inside the `server/` directory and fill in the values:
 
 ```env
 PORT=3000
-MONGO_URI=mongodb+srv://<user>:<password>@<cluster>.mongodb.net/<dbname>
-SESSION_SECRET=your_random_secret_string
-GEMINI_API_KEY=your_gemini_api_key
+MONGO_URI=mongodb+srv://<user>:<password>@<cluster>.mongodb.net/nusuk?retryWrites=true&w=majority
+SESSION_SECRET=<a long random string, e.g. output of `node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"`>
+GEMINI_API_KEY=<your gemini api key>
 ```
 
-### 4. Run the Application
+The `.env` file is gitignored. Never commit real credentials.
+
+### 4. MongoDB Atlas Setup (recommended)
+1. Create a free **M0 cluster** at [cloud.mongodb.com](https://cloud.mongodb.com). Pick a region that shows the **FREE** badge (e.g. AWS Frankfurt or N. Virginia).
+2. Under **Database Access**, create a user with read/write privileges and copy the password.
+3. Under **Network Access**, allow your IP, or `0.0.0.0/0` for development.
+4. Click **Connect → Drivers** on the cluster and copy the connection string. Insert your password and database name (`nusuk`) into the URI.
+
+### 5. Run the Application
 ```bash
 cd server
-node index.js
+npm run dev      # development with nodemon (auto-reload)
+# or
+npm start        # plain node
 ```
 Open your browser at **http://localhost:3000**.
+
+## Troubleshooting
+
+### `querySrv ECONNREFUSED` when connecting to Atlas
+Some ISPs and corporate networks block DNS SRV queries, which Atlas's `mongodb+srv://` URIs depend on. The server already works around this in [server/index.js](server/index.js) by pointing Node's DNS resolver at `8.8.8.8` and `1.1.1.1`. If you still see SRV errors, either:
+- Change your network adapter's DNS to `8.8.8.8` / `1.1.1.1`, or
+- Replace the SRV URI with the **Standard Connection String** from Atlas (`mongodb://` form that lists all shard hostnames explicitly).
+
+### Atlas M0 cluster shows "paused"
+M0 free clusters automatically pause after long periods of inactivity. Open the Atlas dashboard and click **Resume**. Your data is preserved.
 
 ## API Endpoints
 
@@ -131,9 +152,9 @@ Open your browser at **http://localhost:3000**.
 
 1. Student submits their completed courses with grades.
 2. The server computes three categories:
-   - **Next Core Courses**: courses whose prerequisites are ALL completed and haven't been taken yet.
+   - **Next Core Courses**: courses whose prerequisites are ALL completed and that have not been taken yet.
    - **Ready Electives**: elective courses whose prerequisites are ALL completed.
-   - **Future Electives**: elective courses with missing prerequisites (lists which ones are missing).
+   - **Future Electives**: elective courses with missing prerequisites (the response lists which ones are missing).
 3. All three lists are sent to **Google Gemini AI** with a detailed prompt.
 4. The AI returns 5 recommendations prioritizing **Ready** courses first, with match percentages and bilingual explanations.
 5. Results are saved to the user's history in MongoDB.
@@ -146,7 +167,7 @@ Open your browser at **http://localhost:3000**.
 
 | Name | Role | Responsibilities |
 | :--- | :--- | :--- |
-| Member 1 | Frontend Developer | UI Design, HTML/CSS, Vanilla JS ES6 Classes & Event Modules |
+| Member 1 | Frontend Developer | UI Design, HTML/CSS, Vanilla JS ES6 Classes |
 | Member 2 | Backend Developer | Node.js/Express Server, MongoDB Models, Authentication |
 | Member 3 | API Integrator | Google Gemini API integration, Recommendation Prompt Engineering |
 
