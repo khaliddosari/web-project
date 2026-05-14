@@ -49,7 +49,7 @@ The system supports three majors: **Computer Science (CS)**, **Information Syste
 | :--- | :--- |
 | **Frontend** | HTML5, CSS3 (custom design system), Vanilla JavaScript (ES6 Classes, `CustomEvent` architecture) |
 | **Backend** | Node.js, Express.js, express-session, connect-mongo |
-| **Database** | MongoDB Atlas (Mongoose ODM) |
+| **Database** | MongoDB  |
 | **AI** | Google Gemini API (`gemini-flash-latest` model via `@google/generative-ai` SDK) |
 | **Auth** | bcrypt (password hashing), express-session (session management) |
 
