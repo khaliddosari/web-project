@@ -14,6 +14,7 @@ class App {
     this.completedCourses = JSON.parse(localStorage.getItem('nusuk_completed') || '[]');
 
     this.initEventListeners();
+    document.body.setAttribute('dir', 'rtl');
     this.applyLanguage();
   }
 

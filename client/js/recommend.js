@@ -73,9 +73,14 @@ export class Recommend {
   }
 
   updateCourseDropdowns() {
+    const lang = this.getLang();
     this.container.querySelectorAll('.grade-course').forEach(select => {
       const val = select.value;
       select.innerHTML = this.getCourseOptionsHtml(val);
+    });
+    this.container.querySelectorAll('.grade-value').forEach(select => {
+      const first = select.querySelector('option[value=""]');
+      if (first) first.textContent = lang === 'ar' ? 'الدرجة' : 'Grade';
     });
   }
 
