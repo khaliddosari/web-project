@@ -8,12 +8,12 @@ export class Recommend {
     this.errorEl = document.getElementById('manual-error');
     this.currentRecommendations = [];
     this.currentUser = null;
+    this.mode = 'manual';
+    this.parsedPasteGrades = [];
 
     document.addEventListener('lang:changed', () => {
       this.updateCourseDropdowns();
-      if (this.currentRecommendations.length > 0) {
-        this.renderResults(this.currentRecommendations);
-      }
+      if (this.currentRecommendations.length > 0) this.renderResults(this.currentRecommendations);
     });
 
     this.init();
@@ -22,12 +22,24 @@ export class Recommend {
   init() {
     document.getElementById('add-grade-row').addEventListener('click', () => this.addGradeRow());
     document.getElementById('manual-submit').addEventListener('click', () => this.submitManual());
+    document.getElementById('parse-grades-btn').addEventListener('click', () => this.handleParsePaste());
+
+    document.querySelectorAll('.grade-input-tab').forEach(tab => {
+      tab.addEventListener('click', () => this.switchMode(tab.dataset.mode));
+    });
   }
 
   setUser(user) { this.currentUser = user; }
   getLang() { return document.body.getAttribute('dir') === 'rtl' ? 'ar' : 'en'; }
 
-  /** Get ALL courses for the student's major (no year filter) */
+  switchMode(mode) {
+    this.mode = mode;
+    document.querySelectorAll('.grade-input-tab').forEach(t => t.classList.toggle('active', t.dataset.mode === mode));
+    document.getElementById('grade-manual-mode').classList.toggle('hidden', mode !== 'manual');
+    document.getElementById('grade-paste-mode').classList.toggle('hidden', mode !== 'paste');
+    this.errorEl.classList.add('hidden');
+  }
+
   getAllMajorCourses() {
     if (!this.currentUser) return COURSES;
     const major = this.currentUser.major;
@@ -38,7 +50,6 @@ export class Recommend {
     });
   }
 
-  /** Get currently selected course codes from the grade rows */
   getSelectedCodes() {
     const codes = [];
     this.container.querySelectorAll('.grade-course').forEach(sel => {
@@ -84,7 +95,6 @@ export class Recommend {
     });
   }
 
-  /** Check if a course's prerequisites are met by currently selected courses */
   checkPrereqs(courseCode) {
     const course = COURSES.find(c => c.code === courseCode);
     if (!course || course.prereqs.length === 0) return { ok: true, missing: [] };
@@ -139,7 +149,131 @@ export class Recommend {
     this.container.appendChild(row);
   }
 
+  // ─── Paste mode ───────────────────────────────
+  toWesternDigits(s) {
+    return s.replace(/[٠-٩]/g, d => String(d.charCodeAt(0) - 0x0660));
+  }
+
+  reverseTranslateCode(code) {
+    return code
+      .replace(/^CS(\d+)/, 'عال$1').replace(/^IS(\d+)/, 'نال$1').replace(/^IT(\d+)/, 'تال$1')
+      .replace(/^MATH(\d+)/, 'ريض$1').replace(/^PHY(\d+)/, 'فيز$1').replace(/^ENG(\d+)/, 'نجل$1')
+      .replace(/^STAT(\d+)/, 'احص$1').replace(/^ACCT(\d+)/, 'حسب$1');
+  }
+
+  parseSmart(text) {
+    const lang = this.getLang();
+    const majorCodes = this.getAllMajorCourses().map(c => c.code);
+    const arGradeMap = {
+      'أ+': 'A+', 'أ': 'A', 'ا+': 'A+', 'ا': 'A',
+      'ب+': 'B+', 'ب': 'B',
+      'ج+': 'C+', 'ج': 'C',
+      'د+': 'D+', 'د': 'D',
+      'را': 'F', 'ر': 'F'
+    };
+    const enGrades = new Set(['A+','A','B+','B','C+','C','D+','D','F']);
+    const headerKeywords = ['التقدير', 'المعدل', 'الوحدات', 'المقرر', 'الفصلي', 'التراكمي'];
+    const parsed = [];
+
+    text.split('\n').forEach(line => {
+      line = line.trim();
+      if (!line || headerKeywords.some(k => line.includes(k))) return;
+
+      const tokens = this.toWesternDigits(line).split(/[\t\s]+/).map(t => t.trim()).filter(Boolean);
+      let foundCourse = null;
+      let grade = null;
+
+      for (const token of tokens) {
+        if (!foundCourse && /^[؀-ۿ]{2,4}\d{3,4}$/.test(token)) {
+          const course = COURSES.find(c => c.code === token && majorCodes.includes(c.code));
+          if (course) foundCourse = course;
+        }
+        if (!foundCourse && /^(CS|IS|IT|MATH|PHY|ENG|STAT|ACCT)\d{3,4}$/i.test(token)) {
+          const course = COURSES.find(c => c.code === this.reverseTranslateCode(token.toUpperCase()) && majorCodes.includes(c.code));
+          if (course) foundCourse = course;
+        }
+        if (!grade && enGrades.has(token.toUpperCase())) grade = token.toUpperCase();
+        if (!grade && arGradeMap[token]) grade = arGradeMap[token];
+      }
+
+      if (foundCourse && grade) {
+        parsed.push({ course: foundCourse.code, grade, displayCode: this.translateCode(foundCourse.code, lang), name: lang === 'ar' ? foundCourse.arName : foundCourse.enName });
+      }
+    });
+
+    return parsed;
+  }
+
+  handleParsePaste() {
+    const text = document.getElementById('grade-paste-input').value.trim();
+    if (!text) return;
+
+    const newParsed = this.parseSmart(text);
+
+    newParsed.forEach(p => {
+      const existing = this.parsedPasteGrades.findIndex(x => x.course === p.course);
+      if (existing >= 0) this.parsedPasteGrades[existing].grade = p.grade;
+      else this.parsedPasteGrades.push({ course: p.course, grade: p.grade });
+    });
+
+    this.renderPastePreview();
+  }
+
+  renderPastePreview() {
+    const lang = this.getLang();
+    const preview = document.getElementById('paste-preview');
+
+    if (this.parsedPasteGrades.length === 0) {
+      preview.classList.add('hidden');
+      return;
+    }
+
+    const items = this.parsedPasteGrades.map(p => {
+      const course = COURSES.find(c => c.code === p.course);
+      return {
+        code: p.course,
+        grade: p.grade,
+        displayCode: this.translateCode(p.course, lang),
+        name: lang === 'ar' ? course?.arName : course?.enName
+      };
+    });
+
+    preview.innerHTML = `
+      <div class="paste-preview-header">
+        <p class="paste-preview-count">${lang === 'ar' ? `${items.length} مقرر محدد` : `${items.length} course(s) identified`}</p>
+        <button class="paste-clear-all" id="paste-clear-all">${lang === 'ar' ? 'مسح الكل' : 'Clear All'}</button>
+      </div>
+      <div class="paste-preview-list">
+        ${items.map(p => `
+          <div class="paste-preview-row">
+            <span>${p.displayCode} — ${p.name}</span>
+            <div class="paste-row-actions">
+              <span class="paste-grade-badge">${p.grade}</span>
+              <button class="paste-delete-btn" data-code="${p.code}">✕</button>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    `;
+    preview.classList.remove('hidden');
+
+    preview.querySelectorAll('.paste-delete-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        this.parsedPasteGrades = this.parsedPasteGrades.filter(p => p.course !== btn.dataset.code);
+        this.renderPastePreview();
+      });
+    });
+
+    document.getElementById('paste-clear-all').addEventListener('click', () => {
+      this.parsedPasteGrades = [];
+      this.renderPastePreview();
+    });
+  }
+
+  // ─── Collect & Submit ─────────────────────────
   collectGrades() {
+    if (this.mode === 'paste') return this.parsedPasteGrades;
+
     const grades = [];
     document.querySelectorAll('.grade-row').forEach(row => {
       const course = row.querySelector('.grade-course').value;

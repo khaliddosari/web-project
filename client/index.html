@@ -142,11 +142,29 @@
         <div class="recommend-layout">
           <div class="input-panel">
             <div id="manual-panel" class="input-mode-panel active">
-              <div class="manual-grades" id="manual-grades"></div>
-              <button class="btn-add-row" id="add-grade-row">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                <span data-en="Add Course" data-ar="إضافة مقرر">إضافة مقرر</span>
-              </button>
+
+              <div class="grade-input-tabs">
+                <button class="grade-input-tab active" data-mode="manual" data-en="Manual" data-ar="يدوي">يدوي</button>
+                <button class="grade-input-tab" data-mode="paste" data-en="Paste Grades" data-ar="لصق الدرجات">لصق الدرجات</button>
+              </div>
+
+              <!-- Manual mode (existing) -->
+              <div id="grade-manual-mode">
+                <div class="manual-grades" id="manual-grades"></div>
+                <button class="btn-add-row" id="add-grade-row">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                  <span data-en="Add Course" data-ar="إضافة مقرر">إضافة مقرر</span>
+                </button>
+              </div>
+
+              <!-- Paste mode -->
+              <div id="grade-paste-mode" class="hidden">
+                <p class="paste-hint" data-en="Paste your transcript or type one course per line: CS1111 A+" data-ar="الصق كشف درجاتك، أو أدخل مقرراً في كل سطر: عال1111 A+">الصق كشف درجاتك، أو أدخل مقرراً في كل سطر: عال1111 A+</p>
+                <textarea id="grade-paste-input" data-ar="CS1111 A+&#10;MATH1112 B&#10;— أو الصق كشف درجاتك مباشرةً —" data-en="CS1111 A+&#10;MATH1112 B&#10;— or paste your transcript directly —" placeholder="CS1111 A+&#10;MATH1112 B&#10;— أو الصق كشف درجاتك مباشرةً —"></textarea>
+                <button class="btn-parse" id="parse-grades-btn" data-en="Parse Grades" data-ar="تحليل الدرجات">تحليل الدرجات</button>
+                <div id="paste-preview" class="hidden"></div>
+              </div>
+
               <div id="manual-error" class="form-error hidden"></div>
               <button class="btn-primary" id="manual-submit" data-en="Get Recommendations" data-ar="الحصول على التوصيات">الحصول على التوصيات</button>
             </div>
