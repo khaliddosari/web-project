@@ -5,6 +5,27 @@ Nusuk is an intelligent academic web application designed for **Imam Mohammad Ib
 
 The system supports three majors: **Computer Science (CS)**, **Information Systems (IS)**, and **Information Technology (IT)**, with a full bilingual interface (Arabic / English).
 
+## Project Goals
+1. To provide IMSIU students with personalized, AI-driven academic guidance.
+2. To reduce the confusion and manual effort involved in tracking course prerequisites.
+3. To leverage artificial intelligence to match students with electives that suit their academic strength (GPA).
+
+## Flow Chart
+*(Insert your Flow Chart image here)*
+![Nusuk Flow Chart](<img width="684" height="4188" alt="Nusuk_Flowchart" src="https://github.com/user-attachments/assets/ac106a33-865d-41d8-a48f-ead56652a878" />)
+
+## Screenshots
+*(Insert 2-3 screenshots of your application here)*
+![Dashboard](
+<img width="2527" height="1390" alt="image" src="https://github.com/user-attachments/assets/961ebac1-1852-4d34-a83a-ee3d28c951c5" />
+<img width="2530" height="1393" alt="image" src="https://github.com/user-attachments/assets/66753989-af2b-4250-be7d-82b56f5de2d3" />
+<img width="2557" height="1390" alt="image" src="https://github.com/user-attachments/assets/8872484c-c6fb-4c1d-b0e7-bc69a7462a7b" />
+)
+![AI Recommendations](
+<img width="1262" height="695" alt="image" src="https://github.com/user-attachments/assets/5a1560ca-c178-4739-a79c-c4e745a26407" />
+<img width="1265" height="697" alt="image" src="https://github.com/user-attachments/assets/a538a1c7-c414-434a-a937-c4009e36a2f8" />
+)
+
 ## Key Features
 
 ### AI-Powered Recommendations
@@ -167,9 +188,9 @@ M0 free clusters automatically pause after long periods of inactivity. Open the 
 
 | Name | Role | Responsibilities |
 | :--- | :--- | :--- |
-| Member 1 | Frontend Developer | UI Design, HTML/CSS, Vanilla JS ES6 Classes |
-| Member 2 | Backend Developer | Node.js/Express Server, MongoDB Models, Authentication |
-| Member 3 | API Integrator | Google Gemini API integration, Recommendation Prompt Engineering |
+| Khaled Al-Dosari | Frontend Developer | UI Design, HTML/CSS, Vanilla JS ES6 Classes |
+| Mishari Al-Muhanna | Backend Developer | Node.js/Express Server, MongoDB Models, Authentication |
+| Marwan Abdullah Ali | API Integrator | Google Gemini API integration, Recommendation Prompt Engineering |
 
 ## Future Work
 - Integration with the university's official student portal for direct transcript imports.
