@@ -1,4 +1,5 @@
-# <img src="https://github.com/user-attachments/assets/4c16fc8f-0af9-4a9f-ab75-8932e1954a03" width="40" vertical-align="middle"> Nusuk (نسق): AI Elective Recommender
+# <img width="165" height="38" alt="image" src="https://github.com/user-attachments/assets/ba518f4f-101f-4a9e-857a-6e139becab51" />
+> Nusuk (نسق): AI Elective Recommender
 
 [![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)](https://nodejs.org/)
 [![Express.js](https://img.shields.io/badge/Express.js-000000?style=for-the-badge&logo=express&logoColor=white)](https://expressjs.com/)
