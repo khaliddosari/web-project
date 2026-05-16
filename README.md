@@ -11,9 +11,7 @@ The system supports three majors: **Computer Science (CS)**, **Information Syste
 3. To leverage artificial intelligence to match students with electives that suit their academic strength (GPA).
 
 ## Flow Chart
-![Nusuk Flow Chart](
-file:///C:/Users/mlege/Downloads/Nusuk_Flowchart.png
-)
+<img src="https://github.com/user-attachments/assets/4c16fc8f-0af9-4a9f-ab75-8932e1954a03" alt="Nusuk Flow Chart" width="200" />
 
 ## Screenshots
 ![Dashboard](
