@@ -12,7 +12,7 @@ The system supports three majors: **Computer Science (CS)**, **Information Syste
 
 ## Flow Chart
 ![Nusuk Flow Chart](
-<img width="684" height="4188" alt="Nusuk_Flowchart" src="https://github.com/user-attachments/assets/f8eb27eb-9fd9-4ca1-b964-99b667057afd" />
+file:///C:/Users/mlege/Downloads/Nusuk_Flowchart.png
 )
 
 ## Screenshots
